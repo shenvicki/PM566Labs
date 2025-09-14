@@ -1,0 +1,118 @@
+---
+title: "PM566 Lab 3"
+author: "Vicki"
+format:
+  html:
+    embed-resources: true
+---
+
+# 1
+
+```{r}
+met <- read.csv("~/Downloads/met_all.gz")
+```
+
+# 2
+
+```{r}
+dim(met)
+head(met)
+tail(met)
+```
+
+There are 2377343 rows and 30 columns. 
+
+# 3
+
+```{r}
+str(met)
+```
+
+# 4
+
+```{r}
+table(met$year)
+table(met$day)
+table(met$hour)
+summary(met$temp)
+summary(met$elev)
+summary(met$wind.sp)
+
+met$elev[met$elev==9999.0] <- NA
+summary(met$elev)
+```
+
+The elevation of the highest weather station is 4113. 
+
+```{r}
+met <- met[met$temp > -40, ]
+met2 <- met[order(met$temp), ]
+head(met2)
+```
+
+# 5
+
+```{r}
+met <- met[met$temp > -15, ]
+met2 <- met[order(met$temp), ]
+head(met2)
+```
+
+# 6
+
+```{r}
+elev <- met[met$elev==max(met$elev, na.rm=TRUE), ]
+summary(elev)
+
+cor(elev$temp, elev$wind.sp, use="complete")
+cor(elev$temp, elev$hour, use="complete")
+cor(elev$wind.sp, elev$day, use="complete")
+cor(elev$wind.sp, elev$hour, use="complete")
+cor(elev$temp, elev$day, use="complete")
+```
+
+# 7
+
+```{r}
+hist(met$elev, breaks=100)
+hist(met$temp)
+hist(met$wind.sp)
+```
+
+```{r}
+library(leaflet)
+leaflet(elev) %>%
+  addProviderTiles('OpenStreetMap') %>% 
+  addCircles(lat=~lat,lng=~lon, opacity=1, fillOpacity=1, radius=100)
+```
+
+```{r}
+library(lubridate)
+elev$date <- with(elev, ymd_h(paste(year, month, day, hour, sep= ' ')))
+summary(elev$date)
+elev <- elev[order(elev$date), ]
+head(elev)
+```
+
+```{r}
+plot(elev$date, elev$temp, type='l')
+plot(elev$date, elev$wind.sp, type='l')
+```
+
+The temperature at this location varies in high and low temps throughout the month but never exceeds approximately between 3C and 15C. Throughout each day, there appears to be a large change in temperature as well so for this timeframe, it gets hot the temperature cools as the day transitions to night.
+
+Wind speeds is low between Aug 19 and Aug 26 in comparison to other weeks. It is interesting to note that the wind speeds reach the highest before the large decrease and picks up again after the low wind speed period. 
+
+# 8
+Question: Are windy days usually colder in temperature across time?
+```{r}
+plot(met$wind.sp, met$temp,
+     xlab = "Wind Speed (m/s)",
+     ylab = "Temperature (in C)",
+     main = "Wind Speed vs Temperature",
+     pch = 16, col = "blue")
+cor(met$wind.sp, met$temp)
+```
+
+
+
